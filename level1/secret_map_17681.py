@@ -1,4 +1,4 @@
-def solution(n, arr1, arr2):
+def solution1(n, arr1, arr2): # 방법 1
     answer = []
     for i in range(n):
         row = '' # 지도에서 한 행씩 해독한 문자열을 저장하기 위한 변수
@@ -14,4 +14,14 @@ def solution(n, arr1, arr2):
         answer.append(row) # 하나의 행 완성
     return answer
 
-print(solution(5,[9, 20, 28, 18, 11], [30, 1, 21, 17, 28])) # 테스트 코드
+def solution2(n, arr1, arr2): # 방법 2 : 비트연산 사용
+    answer = []
+    for i in range(n):
+        row = (bin(arr1[i] | arr2[i]))[2:].zfill(n) # 어느 하나라도 벽인 부분은 전체 지도에서도 벽이므로 or(|)연산 사용
+        row = row.replace('1', '#')
+        row = row.replace('0', ' ')
+        answer.append(row)
+    return answer
+
+print(solution1(5,[9, 20, 28, 18, 11], [30, 1, 21, 17, 28])) # 테스트 코드
+
