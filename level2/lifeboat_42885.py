@@ -1,7 +1,7 @@
 def solution(people, limit):
     people.sort() # 무게 오름차 순 정렬
 
-    f,r = 1, len(people)-1 # front, rear
+    f,r = 0, len(people)-1 # front, rear
     cnt = 0 # 보트 수
 
     while f <= r:
