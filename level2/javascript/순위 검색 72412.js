@@ -1,23 +1,23 @@
 function solution1(info, query) { // 방법 1 : 정확성 통과 O, 효율성 통과 X 
     let answer = [];
     // 1. 데이터 전처리
-    // info
-    let i = info.map(x=>x.split(' '));
-    // query
-    let q = query.map(x=>x.split(' and '));
-    q = q.map(x=>[x[0], x[1], x[2]].concat(x[3].split(" ")));
-    q = q.map(x=>x.filter(y=>y != '-'));
+    let infos = info.map(x=>x.split(' '));
+    let querys = query.map(x=>x.split(' and '));
+    querys = querys.map(x=>[x[0], x[1], x[2]].concat(x[3].split(" ")));
+    querys = querys.map(x=>x.filter(y=>y != '-'));
 
     // 2. 조건 충족 여부 검사
-    for(let j = 0, qLen = q.length; j < qLen; j++){
+    for(let j = 0, qLen = querys.length; j < qLen; j++){
         answer.push(0); // j번 째 쿼리에 만족하는 지원자 수
-        let arr = q[j].slice(0, q[j].length-1); // 현재 info에서 점수 제외
-        let score = +q[j][q[j].length - 1];
+        const arr = [...querys[j]]; // 현재 info에서 점수 제외
+        const score = +arr.pop();
 
-        for(let k = 0, kLen = i.length; k < kLen; k++)
-            if (score <= +i[k][i[k].length - 1]) // 쿼리 점수 이상을 받은 지원자인 경우
-                if(arr.filter(x => !i[k].includes(x)).length == 0) // 조건을 만족하는지 검사
-                    answer[answer.length - 1] += 1;
+        for(let k = 0, kLen = infos.length; k < kLen; k++){
+            const target_score = +infos[k][infos[k].length - 1]; 
+            if (score <= target_score) // 쿼리 점수 이상을 받은 지원자인 경우
+                if(arr.filter(x => !infos[k].includes(x)).length == 0) // 조건을 만족하는지 검사
+                    answer[answer.length - 1]++;
+        }
     }
     return answer;
 }
@@ -26,12 +26,12 @@ function solution2(info, query) { // 방법 2 : 정확성 통과 O, 효율성 �
     let answer = [];
     let infoMap = {};
 
-    // 1. 한 info에 대해서 가능한 모든 조합 구하기
+    // 2. 한 info에 대해서 가능한 모든 조합 구하기
     function combination(infos, score, start){
         const key = infos.join(""); //키 값으로 사용할 조건 이어붙이기
         const value = infoMap[key]; // 점수
 
-        // 1.1. 현재 조합에 점수 저장
+        // 2.1. 현재 조합에 점수 저장
         if(value){ // 해당 조건에 점수(1개 이상)가 존재하는 경우, 점수 배열에 현재 점수 삽입
             infoMap[key].push(score);
         }
@@ -39,7 +39,7 @@ function solution2(info, query) { // 방법 2 : 정확성 통과 O, 효율성 �
             infoMap[key] = [score];
         }
 
-        // 1.2. 그 다음 조합 생성(단, - 를 이용해서 조합 생성)
+        // 2.2.  "-"가 들어갈 수 있는 모든 조합 구하기
         for(let i = start; i < infos.length; i++){
             let tmp = infos.slice();
             tmp[i] = '-';
@@ -47,7 +47,7 @@ function solution2(info, query) { // 방법 2 : 정확성 통과 O, 효율성 �
         }
     }
 
-    // 2. 지원자의 코테 점수목록 중(scores) 목표 점수(score)이상인 요소의 인덱스 하한 선을 이진 탐색
+    // 5. 지원자 점수 목록 scores에서 score값 이상의 점수에 대한 하한선을 이진 탐색
     function lowerboundSearch(scores, score){
         if(scores){ // 점수가 존재할 경우에만 탐색 진행
             let low = 0;
@@ -64,28 +64,27 @@ function solution2(info, query) { // 방법 2 : 정확성 통과 O, 효율성 �
             }
             answer.push(scores.length - low);
         }
-        else{
+        else{ // 검색 조건에 해당하는 지원자가 존재하지 않는 경우 0명으로 초기화
             answer.push(0);
         }
     }
 
-    // 3. 데이터 전처리
-    // info
+    // 1. info 데이터 전처리
     for(let i = 0; i < info.length; i++){
         const infos = info[i].split(' ');
-        const score = +(infos.pop());
-        combination(infos, score, 0); // 해당 지원자의 가능한 모든경우의 수('-' 대입)를 생성
+        const score = +infos.pop();
+        combination(infos, score, 0);
     }
 
-    // infoMap 이진 탐색 전 정렬 필수 !
+    // 3. infoMap 이진 탐색 전 정렬 필수 !
     for (const key in infoMap) { 
         infoMap[key] = infoMap[key].sort((a, b) => a - b);
     }
 
-    // query
+    // 4. query 데이터 전처리
     for(let i = 0; i < query.length; i++){
         let querys = query[i].replace(/ and /g, '').split(' ');
-        const score = +(querys.pop());
+        const score = +querys.pop();
         const key = querys.join('');
         lowerboundSearch(infoMap[key], score);
     }
