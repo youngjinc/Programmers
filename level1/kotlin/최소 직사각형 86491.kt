@@ -1,29 +1,20 @@
-import java.lang.Math.max
-import java.lang.Math.min
-
 class Solution {
     fun solution(sizes: Array<IntArray>): Int {
-    var maxLength = sizes[0][0]
-        var maxOppositeLength = sizes[0][1]
-        var maxLengthIdx = 0
+        var edge1 = 1
+        var edge2 = 1
 
-        for (i in 0 until sizes.size) {
-            if (!(maxLength < max(sizes[i][0], sizes[i][1]))) continue
-
-            if (sizes[i][0] <= sizes[i][1]) {
-                maxLength = sizes[i][1]
-                maxOppositeLength = sizes[i][0]
-            } else {
-                maxLength = sizes[i][0]
-                maxOppositeLength = sizes[i][1]
-            }
-            maxLengthIdx = i
+        sizes.forEach { size ->
+            val result = compareNum(size[0], size[1])
+            edge1 = compareNum(edge1, result.first).first
+            edge2 = compareNum(edge2, result.second).first
         }
 
-        for (i in 0..sizes.size - 1) {
-            if (i == maxLengthIdx) continue
-            val minSize = min(sizes[i][0], sizes[i][1])
-            if (maxOppositeLength < minSize) maxOppositeLength = minSize
-        }
+        return edge1 * edge2
+    }
+
+    /** Pair<Int, Int> : first() -> max, second() -> min */
+    fun compareNum(num1: Int, num2: Int): Pair<Int, Int> {
+        if (num1 < num2) return Pair(num2, num1)
+        else return Pair(num1, num2)
     }
 }
